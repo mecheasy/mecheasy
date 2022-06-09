@@ -1,0 +1,134 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap');
+
+  body {
+    background: lightgray
+  }
+
+  svg {
+    background-color: white;
+    box-shadow: 2px 2px 20px;
+  }
+
+  .tooltip {
+    fill: rgba(189, 188, 188, 1);
+    font-family: Gloria Hallelujah;
+    opacity: 0;
+    background-color: lightblue;
+    position: absolute;
+    margin: 100px;
+    padding: 10px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  h2 {
+    font-family: helvetica;
+  }
+
+  h1 {
+    font-family: Gloria Hallelujah;
+    color: rgba(0, 0, 0, 0)
+  }
+
+  h1:hover {
+    color: red;
+  }
+
+  .bar:hover {
+    fill: white;
+  }
+</style>
+
+<body>
+
+  <h1>HAPPY BIRTHDAY</h1>
+  <h2 id="title">US GDP DATA BY QUARTER, 1947 TO 2015</h2>
+
+  <script src="http://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+  <script>
+    function lmaoe() {
+      d3.selectAll("svg").remove();
+    }
+
+    function lmaoooo() {
+      function peboid(datec) {
+        var pends = datec.charAt(0) + datec.charAt(1) + datec.charAt(2) + datec.charAt(3);
+        if (datec.charAt(6) == 1) {
+          return "Q1 " + pends;
+        } else if (datec.charAt(6) == 4) {
+          return "Q2 " + pends;
+        }
+        if (datec.charAt(6) == 7) {
+          return "Q3 " + pends;
+        }
+        if (datec.charAt(6) == 0) {
+          return "Q4 " + pends;
+        }
+      }
+
+      function bepoid(datec) {
+        if (datec > 1000) {
+          return (datec / 1000).toPrecision(4) + " trillion";
+        } else {
+          return datec + " billion";
+        }
+      }
+      d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json').then((data) => {
+        const json = data;
+        //console.log(data)
+        var w = document.getElementById("goRange").value;
+        let h = 300;
+        let marge = 30;
+        let wide = (w - 4 * marge) / (d3.max(json["data"], (d, i) => i));
+        var div = d3.select("body")
+          .append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0).attr("id", "tooltip");
+        let scale = d3.scaleLinear().domain([1947, 2015.5]).range([0 + 2 * marge, w - 2 * marge + wide]);
+        let scaley = d3.scaleLinear().domain([d3.max(json["data"], (d) => d[1]), 0]).range([marge, h - marge]);
+        let axis = d3.axisBottom(scale).tickFormat(d3.format("d"));
+        let waxis = d3.axisLeft(scaley);
+        const svg = d3.select("body")
+          .append("svg")
+          .attr("width", w)
+          .attr("height", h);
+        const blem = (d, i) => marge + (-2 * marge + h - ((h - 2 * marge) * d[1] / d3.max(json["data"], (d) => d[1])));
+        svg.selectAll("rect")
+          .data(json["data"])
+          .enter()
+          .append("rect")
+          .attr("x", (d, i) => 2 * marge + i * (w - 4 * marge) / d3.max(json["data"], (d, i) => i))
+          .attr("y", blem)
+          .attr("width", (d, i) => (w - 4 * marge) / d3.max(json["data"], (d, i) => i))
+          .attr("height", (d, i) => (h - 2 * marge) * d[1] / d3.max(json["data"], (d, i) => d[1]))
+          .attr('data-date', function(d, i) {
+            return data.data[i][0];
+          })
+          .attr('data-gdp', function(d, i) {
+            return data.data[i][1];
+          })
+          .attr("fill", (d, i) => "rgba(0," + (3 * d[1] / i) + "," + document.getElementById("myRange").value + ",1)")
+          .attr("class", "bar")
+          .on("mouseover", function(d) {
+            div.html("GDP: $" + bepoid(d[1]) + " <br>Date: " + peboid(d[0])).style("opacity", .9).attr('data-date', d[0]).attr('data-gdp', d[1])
+              .style("left", (d3.event.pageX) - 50 + "px")
+              .style("top", (d3.event.pageY) - 100 + "px");
+          })
+          .on("mouseout", function(d) {
+            div.style("opacity", .0)
+          })
+        svg.append("g").call(axis).attr("transform", "translate(0, 270)").attr("id", "x-axis")
+        svg.append("g").call(waxis).attr("transform", "translate(60, 0)").attr("id", "y-axis");
+      })
+    };
+    lmaoooo();
+  </script>
+  <div class="slidecontainer">
+    <input type="range" min="1" max="255" value="140" class="slider" onclick="lmaoe();lmaoooo()" id="myRange">
+    <input onclick="lmaoe();lmaoooo()" type="range" min="500" max="1500" value="700" class="slider" id="goRange">
+  </div>
+</body>
